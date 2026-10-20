@@ -1,0 +1,533 @@
+/* TicTacMind — flat, high-contrast theme.
+   Solid colours, bold borders, no gradients, no soft shadows. */
+
+:root {
+  --bg: #0a0a0a;
+  --panel: #161616;
+  --panel-soft: #202020;
+  --border: #4a4a4a;
+  --border-strong: #6e6e6e;
+  --text: #ffffff;
+  --muted: #b8b8b8;
+  --accent: #ffd60a;
+  --accent-ink: #0a0a0a;
+  --accent-2: #22d3ee;
+  --win: #2fe07d;
+  --win-ink: #04180d;
+  --lose: #ff5252;
+  --hint: #ffd60a;
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* No gray tap flash on Android, no double-tap zoom delay on iOS/Android. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  /* max() keeps at least the base padding while respecting notches and the
+     home indicator on phones in any orientation (viewport-fit=cover). */
+  padding:
+    max(20px, env(safe-area-inset-top))
+    max(18px, env(safe-area-inset-right))
+    max(44px, env(safe-area-inset-bottom))
+    max(18px, env(safe-area-inset-left));
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  letter-spacing: 0.02em;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.title-accent {
+  color: var(--accent);
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: clamp(0.85rem, 2.4vw, 1rem);
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 880px) {
+  .layout {
+    grid-template-columns: minmax(340px, 440px) minmax(280px, 1fr);
+  }
+}
+
+.game-panel,
+.sidebar > section,
+.controls {
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.game-panel {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar > section,
+.controls {
+  padding: 16px;
+}
+
+.sidebar h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* ---------- Status ---------- */
+
+.status {
+  margin: 0;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--panel-soft);
+  border: 2px solid var(--border-strong);
+  color: var(--text);
+}
+
+.status-win {
+  color: var(--win-ink);
+  background: var(--win);
+  border-color: var(--win);
+}
+
+.status-lose {
+  color: var(--text);
+  background: var(--lose);
+  border-color: var(--lose);
+}
+
+.status-draw {
+  color: var(--accent-ink);
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+}
+
+/* ---------- Board ---------- */
+
+.board {
+  display: grid;
+  /* minmax(0, 1fr): cells must obey the container width even when the
+     clamped font size would otherwise set a larger content minimum. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-soft);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: clamp(1.8rem, 7vw, 2.8rem);
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.cell:not(:disabled):hover {
+  background: #2b2b2b;
+  border-color: var(--accent);
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+.cell:focus-visible,
+.btn:focus-visible,
+.segment:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cell-x .cell-mark {
+  color: var(--accent);
+}
+
+.cell-o .cell-mark {
+  color: var(--accent-2);
+}
+
+.cell-mark {
+  line-height: 1;
+}
+
+/* Winning cells: solid green fill, thicker border plus a ✓ badge, so the
+   highlight does not depend on colour vision alone. */
+.cell-win {
+  background: var(--win);
+  border-color: var(--win);
+  border-width: 3px;
+}
+
+.cell-win .cell-mark {
+  color: var(--win-ink);
+}
+
+.cell-win-badge {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  font-size: 0.95rem;
+  color: var(--win-ink);
+  font-weight: 800;
+}
+
+/* Hint: dashed yellow border plus a corner dot. */
+.cell-hint {
+  border-color: var(--hint);
+  border-style: dashed;
+  border-width: 3px;
+  animation: hint-blink 1s steps(2, start) infinite;
+}
+
+.cell-hint-dot {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--hint);
+}
+
+@keyframes hint-blink {
+  50% {
+    border-color: var(--hint);
+    background: #33300f;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell-hint {
+    animation: none;
+  }
+}
+
+/* ---------- Actions ---------- */
+
+.hint-message {
+  margin: 0;
+  min-height: 1.2em;
+  text-align: center;
+  color: var(--hint);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: var(--panel-soft);
+  color: var(--text);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  min-height: 44px; /* ≥ 44px touch target (Apple HIG / WCAG 2.5.5) */
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: #2b2b2b;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #ffe14d;
+  border-color: #ffe14d;
+}
+
+.btn-quiet {
+  width: 100%;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.btn-confirm {
+  color: var(--lose);
+  border-color: var(--lose);
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--panel-soft);
+  padding: 5px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border-strong);
+}
+
+.segment {
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--muted);
+  border-radius: var(--radius);
+  padding: 9px 10px;
+  min-height: 44px; /* ≥ 44px touch target */
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.segment:hover {
+  color: var(--text);
+}
+
+.segment-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.control-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ---------- Scoreboard ---------- */
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 2px solid var(--border);
+}
+
+.score-row:last-of-type {
+  border-bottom: none;
+}
+
+.score-label {
+  font-weight: 700;
+}
+
+.score-human {
+  color: var(--accent);
+}
+
+.score-ai {
+  color: var(--accent-2);
+}
+
+.score-draw {
+  color: var(--muted);
+}
+
+.score-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* ---------- Device adaptations ---------- */
+
+/* Small phones (iPhone SE, compact Androids): tighten the rhythm so the
+   board stays as large as possible without horizontal scrolling. */
+@media (max-width: 380px) {
+  .app {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(32px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .game-panel {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .sidebar > section,
+  .controls {
+    padding: 12px;
+  }
+
+  .board {
+    gap: 7px;
+  }
+
+  .status {
+    font-size: 1rem;
+    padding: 7px 10px;
+  }
+
+  .btn {
+    padding: 10px 12px;
+    flex: 1 1 auto; /* buttons share one row even when space is tight */
+  }
+}
+
+/* Landscape phones and other short viewports: keep the whole game on screen
+   by sizing the board against the viewport height (dvh where supported). */
+@media (orientation: landscape) and (max-height: 520px) {
+  .app-header {
+    margin-bottom: 8px;
+  }
+
+  .app-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .subtitle {
+    font-size: 0.78rem;
+  }
+
+  .game-panel {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .board {
+    max-width: min(400px, calc(100vh - 240px));
+  }
+
+  .board {
+    max-width: min(400px, calc(100dvh - 240px));
+  }
+
+  .cell {
+    font-size: 1.5rem; /* glyph must fit the height-constrained cell */
+  }
+
+  .status {
+    font-size: 0.95rem;
+    padding: 5px 10px;
+  }
+
+  .hint-message {
+    min-height: 0;
+    font-size: 0.85rem;
+  }
+}
+
+/* Very large displays: a slightly roomier column, still centered. */
+@media (min-width: 1600px) {
+  .app {
+    max-width: 1120px;
+  }
+}
